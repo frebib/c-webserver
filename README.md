@@ -8,3 +8,17 @@ It can be built and run with the following command:
 ```
 make all run
 ```
+
+---
+
+The simplest way to run this program is via [Docker](https://www.docker.com/). Build the container and run it with the following commands:
+
+```
+docker build -t frebib/c-webserver .
+docker run -d --name webserver -p 8088:8088 frebib/c-webserver
+```
+
+To view the output, view the logs:
+```
+docker logs -f webserver
+```
