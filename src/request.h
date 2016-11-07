@@ -1,3 +1,6 @@
+#ifndef _HTTP_REQUEST
+#define _HTTP_REQUEST
+
 #include "http.h"
 
 /**
@@ -13,3 +16,5 @@ struct http_header* read_head(FILE* stream);
 void free_req(struct http_req* request);
 
 void free_head(struct http_header* headers);
+
+#endif
