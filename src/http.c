@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <pcre.h>
+#include <time.h>
 
 #include "http.h"
 
@@ -128,14 +129,4 @@ int parse_http_ver(char* version_str, size_t version_str_len, struct http_req* r
   pcre_free(http_regex);
 
   return 0;
-}
-
-struct http_header* find_header(struct http_header* headers, char* key) {
-  while (headers != NULL) {
-    if (strcasecmp(headers->name, key) == 0) {
-      return headers;
-    }
-    headers = headers->next;
-  }
-  return NULL;
 }

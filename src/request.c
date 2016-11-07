@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #include "request.h"
+#include "http_header.h"
 
 void req_timeout(int signal) {
   // TODO: Cleanup and reply on timeout
@@ -146,14 +147,4 @@ void free_req(struct http_req* request) {
   free(request->path);
   free_head(request->headers);
   free(request);
-}
-
-void free_head(struct http_header* headers) {
-  while (headers != NULL) {
-    struct http_header* next = headers->next;
-    free(headers->name);
-    free(headers->value);
-    free(headers);
-    headers = next;
-  }
 }

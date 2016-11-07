@@ -43,12 +43,6 @@
 #define HTTP_VERSION_UNSUPP   505
 
 
-struct http_header {
-    char* name;
-    char* value;
-    struct http_header* next;
-};
-
 struct http_req {
     int http_ver_major;
     int http_ver_minor;
@@ -69,7 +63,5 @@ int status_line(int status_code, char* buffer, size_t buf_size);
 size_t status_line_len(int status_code);
 
 int parse_http_ver(char* version_str, size_t version_str_len, struct http_req* request);
-
-struct http_header* find_header(struct http_header* headers, char* key);
 
 #endif
