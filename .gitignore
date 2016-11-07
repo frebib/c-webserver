@@ -6,5 +6,5 @@ CMakeLists.txt
 
 *.o
 bin/
-build/
+obj/
 webserver
