@@ -101,11 +101,33 @@ struct http_header* read_head(FILE* stream) {
 
     char* colon = strchr(line, ':');
     colon[0] = '\0';
-
-    char* value = colon + 1;
-    while (*value == ' ' || *value == '\t') {
-      value++;
+    
+    // malloc() a buffer for header name
+    size_t len = strlen(line) + 1;
+    char* name = malloc(len);
+    if (name == NULL) {
+      free(line);
+      free_head(head);
+      return NULL;
     }
+    strncpy(name, line, len);
+
+    // malloc() a buffer for header value
+    char* val_tmp = colon + 1;
+    while (*val_tmp == ' ' || *val_tmp == '\t') {
+      val_tmp++;
+    }
+    len = strlen(val_tmp) + 1;
+    char* value = malloc(len);
+    if (value == NULL) {
+      free(line);
+      free_head(head);
+      return NULL;
+    }
+    strncpy(value, val_tmp, len);
+
+    // Dispose of temporary line buffer
+    free(line);
 
     struct http_header* prev = curr;
     curr = malloc(sizeof(struct http_header));
@@ -113,7 +135,7 @@ struct http_header* read_head(FILE* stream) {
       head = curr;
     if (prev != NULL)
       prev->next = curr;
-    curr->name = line;
+    curr->name = name;
     curr->value = value;
     curr->next = NULL;
   }
@@ -127,9 +149,10 @@ void free_req(struct http_req* request) {
 }
 
 void free_head(struct http_header* headers) {
-  while(headers != NULL) {
+  while (headers != NULL) {
     struct http_header* next = headers->next;
     free(headers->name);
+    free(headers->value);
     free(headers);
     headers = next;
   }
