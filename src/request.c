@@ -115,6 +115,7 @@ struct http_header* read_head(FILE* stream) {
       prev->next = curr;
     curr->name = line;
     curr->value = value;
+    curr->next = NULL;
   }
 }
 
