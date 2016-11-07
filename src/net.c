@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <netdb.h>
 
+#include "net.h"
+
 int bindSocket(int port) {
   // Format the port as a string
   char port_chr[6];
@@ -40,6 +42,7 @@ int bindSocket(int port) {
     }
     return -1;
   }
+  freeaddrinfo(info);
 
   return sock;
 }
