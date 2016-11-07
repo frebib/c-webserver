@@ -8,7 +8,7 @@
 #include <netdb.h>
 
 #include "net.h"
-#include "request.h"
+#include "worker.h"
 
 int PORT = 8088;
 
@@ -44,15 +44,7 @@ int main(int argc, char* argv[]) {
         // Close server socket
         close(sock);
 
-        struct http_req* request = malloc(sizeof(struct http_req));
-        FILE* client = fdopen(client_fd, "r");
-        memset(request, 0, sizeof(struct http_req));
-        read_req(request, client);
-
-        // TODO: Reply!
-
-        free_req(request);
-        fclose(client);
+        handle(client_fd);
 
         // Terminate child process
         exit(0);
