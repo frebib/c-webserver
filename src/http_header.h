@@ -1,14 +1,15 @@
 #ifndef _HTTP_HEADER
 #define _HTTP_HEADER
 
-struct http_header {
+typedef struct http_header {
     char* name;
     char* value;
     struct http_header* next;
-};
+} http_header_t;
 
-void free_head(struct http_header* headers);
+void free_head(http_header_t* headers);
 
-struct http_header* find_header(struct http_header* headers, char* key);
+http_header_t* find_header(http_header_t* headers, char* key);
+
 
 #endif //WEBSERVER_HTTP_HEADER_H

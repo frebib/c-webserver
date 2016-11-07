@@ -2,6 +2,7 @@
 #define _HTTP_REQUEST
 
 #include "http.h"
+#include "http_header.h"
 
 /**
  * Retrieves a HTTP request from a
@@ -11,7 +12,7 @@
  */
 void read_req(struct http_req* request, FILE* stream);
 
-struct http_header* read_head(FILE* stream);
+http_header_t* read_head(FILE* stream);
 
 void free_req(struct http_req* request);
 

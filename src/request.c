@@ -68,7 +68,7 @@ void read_req(struct http_req* request, FILE* stream) {
   request->headers = read_head(stream);
 
   // Read body if Content-Length header is present
-  struct http_header* len_head = find_header(request->headers, "content-length");
+  http_header_t* len_head = find_header(request->headers, "content-length");
   if (len_head != NULL) {
     size_t cont_len = strtoul(len_head->value, NULL, 10);
     char* body = malloc((size_t) cont_len);
@@ -82,8 +82,8 @@ void read_req(struct http_req* request, FILE* stream) {
   alarm(0);
 }
 
-struct http_header* read_head(FILE* stream) {
-  struct http_header* head = NULL, *curr = NULL;
+http_header_t* read_head(FILE* stream) {
+  http_header_t* head = NULL, *curr = NULL;
 
   while (true) {
     char* line = NULL;
@@ -130,8 +130,8 @@ struct http_header* read_head(FILE* stream) {
     // Dispose of temporary line buffer
     free(line);
 
-    struct http_header* prev = curr;
-    curr = malloc(sizeof(struct http_header));
+    http_header_t* prev = curr;
+    curr = malloc(sizeof(http_header_t));
     if (head == NULL)
       head = curr;
     if (prev != NULL)

@@ -4,9 +4,9 @@
 
 #include "http_header.h"
 
-void free_head(struct http_header* headers) {
+void free_head(http_header_t* headers) {
   while (headers != NULL) {
-    struct http_header* next = headers->next;
+    http_header_t* next = headers->next;
     free(headers->name);
     free(headers->value);
     free(headers);
@@ -14,7 +14,7 @@ void free_head(struct http_header* headers) {
   }
 }
 
-struct http_header* find_header(struct http_header* headers, char* key) {
+http_header_t* find_header(http_header_t* headers, char* key) {
   while (headers != NULL) {
     if (strcasecmp(headers->name, key) == 0) {
       return headers;
