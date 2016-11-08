@@ -26,4 +26,7 @@ clean:
 	$(RM) -r $(BINDIR) $(OBJDIR)
 	find . -name '*.o' -delete
 
-.PHONY: all clean
+run:
+	$(BINDIR)/$(TARGET)
+
+.PHONY: all clean run
