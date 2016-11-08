@@ -10,9 +10,7 @@
 #include <pwd.h>
 #include <openssl/ssl.h>
 
-#include "net.h"
 #include "worker.h"
-#include "transport.h"
 
 #define PORT 8088
 #define USER "nobody"
@@ -84,7 +82,7 @@ int serve(int sock, int sock_type) {
 int main(int argc, char* argv[]) {
 
   // TODO: Take daemon flag as a command line argument
-  bool daemon = true;
+  bool daemon = false;
 
   // Open a socket and bind to it (for your life)
   int sock;

@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <pcre.h>
-#include <time.h>
 
 #include "http.h"
 #include "http_header.h"
