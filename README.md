@@ -8,7 +8,7 @@ It can handle many concurrent connections and implements a basic subset of the [
 * [x] 200, 403 & 404 responses for files
 * [x] File MIME type detection via [libmagic](https://github.com/file/file)
 * [ ] Index pages
-* [ ] Default error pages
+* [x] Default error pages
 * [ ] SSL/TLS support
 * [ ] Configurable servers, SSL etc.
 

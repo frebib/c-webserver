@@ -64,4 +64,6 @@ size_t status_line_len(int status_code);
 
 int parse_http_ver(char* version_str, size_t version_str_len, struct http_req* request);
 
+int error_page(char** buffer, int response_code);
+
 #endif

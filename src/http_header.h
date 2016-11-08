@@ -1,7 +1,9 @@
 #ifndef _HTTP_HEADER
 #define _HTTP_HEADER
 
-#define SERVER_NAME_VER "Webserver v0.1"
+#define SERVER_VER  "0.1"
+#define SERVER_NAME "webserver"
+#define SERVER_NAME_VER SERVER_NAME "/" SERVER_VER
 
 typedef struct http_header {
     char* name;

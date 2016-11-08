@@ -5,6 +5,7 @@
 #include <time.h>
 
 #include "http.h"
+#include "http_header.h"
 
 int request_type(char* type) {
   if (strcasecmp("GET", type) == 0)
@@ -129,4 +130,19 @@ int parse_http_ver(char* version_str, size_t version_str_len, struct http_req* r
   pcre_free(http_regex);
 
   return 0;
+}
+
+int error_page(char** buffer, int response_code) {
+  char* template =
+          "<head>\n\t<title>%d %s</title>\n</head>\n"
+          "<body style=\"margin:1.4em;font-size:1.2em;text-align:center\">\n"
+          "\t<h1>%d: %s</h1>\n\t<hr />"
+          "\t<span>" SERVER_NAME_VER "</span>\n"
+          "</body>";
+  // Subtract 8 for the %s and %d format identifiers
+  size_t templ_len = strlen(template) - 8;
+
+  const char* status_txt = status(response_code);
+  *buffer = malloc(templ_len + 6 + strlen(status_txt) * 2);
+  return sprintf(*buffer, template, response_code, status_txt, response_code, status_txt);
 }
