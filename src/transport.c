@@ -125,9 +125,21 @@ int sputs(char* buffer, http_sock_t* stream) {
 }
 
 int sreadc(http_sock_t* stream) {
+  // Temporary variables
+  int ret;
   char c;
-  ssize_t ret = read_sock(stream, &c, 1);
-  return (int) (ret >= 0 ? c : ret);
+
+  switch (stream->http_sock_type) {
+    case HTTP_SOCK_RAW:
+      return fgetc(stream->file);
+
+    case HTTP_SOCK_TLS:
+      ret = SSL_read(stream->ssl_conn, &c, 1);
+      return ret <= 0 ? EOF : c;
+
+    default:
+      return -1;
+  }
 }
 
 int sclose(http_sock_t* stream) {

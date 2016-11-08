@@ -9,6 +9,7 @@
 typedef struct http_sock {
     int http_sock_type;
     int fd;
+    FILE* file;
     union {
       // SOCK_HTTP
         // - Nothing special required
