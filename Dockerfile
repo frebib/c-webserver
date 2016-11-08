@@ -1,7 +1,7 @@
 FROM alpine:3.4
 MAINTAINER Joe Groocock <frebib@gmail.com>
 
-RUN apk add --no-cache git make gcc libc-dev pcre-dev && \
+RUN apk add --no-cache git make gcc libc-dev pcre-dev file-dev && \
     git clone https://github.com/frebib/c-webserver.git /webserver && \
     cd /webserver && \
     make all && \
