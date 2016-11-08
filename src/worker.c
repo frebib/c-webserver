@@ -86,7 +86,7 @@ void handle(int fd) {
       // file exists but is not readable
       send_status_line(stream, HTTP_FORBIDDEN);
 
-      Construct Content-Length header
+      // Construct Content-Length header
       http_header_t* cont_len = cont_len_head(0);
       cont_len->next = headers;
       headers = cont_len;
