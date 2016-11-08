@@ -45,7 +45,8 @@ int serve(int sock, int sock_type) {
 
         http_sock_t connection = {
             .http_sock_type = sock_type,
-            .fd = client_fd,
+            .fd             = client_fd,
+            .file           = fdopen(client_fd, "w+")
         };
 
         switch (sock_type) {
@@ -126,7 +127,7 @@ int main(int argc, char* argv[]) {
     // This prevents zombie children processes
     struct sigaction sigchld_action = {
         .sa_handler = SIG_DFL,
-        .sa_flags = SA_NOCLDWAIT
+        .sa_flags   = SA_NOCLDWAIT
     };
     sigaction(SIGCHLD, &sigchld_action, NULL);
 

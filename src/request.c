@@ -7,7 +7,6 @@
 #include <stdbool.h>
 
 #include "request.h"
-#include "transport.h"
 
 void req_timeout(int signal) {
   // TODO: Cleanup and reply on timeout

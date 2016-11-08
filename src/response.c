@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "response.h"
-#include "transport.h"
 
 int send_err_resp(http_sock_t* stream, int response_code, http_header_t* headers) {
   errno = 0;
@@ -33,7 +32,7 @@ int send_status_line(http_sock_t* stream, int response_code) {
   size_t len = status_line_len(response_code);
   char buffer[len];
   status_line(response_code, buffer, len);
-  int ret  = write_sock(stream, buffer, sizeof buffer);
+  int ret = write_sock(stream, buffer, sizeof buffer);
   if (ret < 0)
     return ret;
   ret = send_crlf(stream);
