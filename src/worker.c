@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
-#include <malloc.h>
-#include <tkPort.h>
 #include <magic.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/sendfile.h>
 
 #include "worker.h"

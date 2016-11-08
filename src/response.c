@@ -1,7 +1,6 @@
 #include <malloc.h>
 
 #include "response.h"
-#include "http_header.h"
 
 int send_status_line(FILE* stream, int response_code) {
   // Send appropriate status line for response code
