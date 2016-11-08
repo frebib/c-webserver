@@ -9,11 +9,13 @@
 #include <signal.h>
 #include <pwd.h>
 #include <openssl/ssl.h>
+#include <grp.h>
 
 #include "worker.h"
 
 #define PORT 8088
 #define USER "nobody"
+#define GROUP "nobody"
 
 #define cert_path "test/cert.pem"
 #define key_path  "test/key.pem"
@@ -104,11 +106,17 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
   // Give up higher privilege
-  int ret = setuid(user->pw_uid);
-  if (ret != 0) {
+  int ret_uid = setuid(user->pw_uid);
+  if (ret_uid != 0)
     fprintf(stderr, "Failed to setuid(%d): %s\n", user->pw_uid, strerror(errno));
-    fprintf(stderr, "WARNING: Running as user '%s'\n", getpwuid(getuid())->pw_name);
-    // return EXIT_FAILURE;
+  struct group* grp = getgrnam(GROUP);
+  int ret_gid = setgid(grp->gr_gid);
+  if (ret_gid != 0)
+    fprintf(stderr, "Failed to setgid(%d): %s\n", grp->gr_gid, strerror(errno));
+
+  if (ret_uid != 0 || ret_gid != 0) {
+    struct passwd* passwd = getpwuid(getuid());
+    fprintf(stderr, "WARNING: Running as %s:%s\n", passwd->pw_name, getgrgid(passwd->pw_gid)->gr_name);
   }
 
   printf("Server listening on port %d\n", PORT);
