@@ -30,6 +30,10 @@ int read_req(struct http_req* request, FILE* stream) {
   if ((request->method = request_type(buf)) == -1) {
     fprintf(stderr, "Invalid method: %s\n", buf);
     free(buf);
+    // Cancel alarm
+
+    alarm(0);
+
     return HTTP_NOT_IMPLEMENTED;
   }
 
@@ -50,6 +54,7 @@ int read_req(struct http_req* request, FILE* stream) {
   // Read HTTP Version
   read = getdelim(&buf, &buf_size, '\n', stream);
   int ret = parse_http_ver(buf, (size_t) read, request);
+  free(buf);
   if (ret != 0) {
     switch (ret) {
       case PCRE_ERROR_NOMATCH:
@@ -60,7 +65,6 @@ int read_req(struct http_req* request, FILE* stream) {
         return HTTP_INTERN_SRV_ERR;
     }
   }
-  free(buf);
 
   // Read headers from request
   if (read_head(stream, &request->headers) != 0) {
