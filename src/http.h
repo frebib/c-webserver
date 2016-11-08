@@ -56,7 +56,7 @@ struct http_req {
 
 int request_type(char* type);
 
-char* status(int status_code);
+const char* status(int status_code);
 
 int status_line(int status_code, char* buffer, size_t buf_size);
 

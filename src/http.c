@@ -23,7 +23,7 @@ int request_type(char* type) {
     return -1;
 }
 
-char* status(int status_code) {
+const char* status(int status_code) {
   switch (status_code) {
     // 2XX Codes
     case HTTP_OK:
@@ -87,7 +87,7 @@ char* status(int status_code) {
 }
 
 int status_line(int status_code, char* buffer, size_t buf_size) {
-  char* status_str = status(status_code);
+  const char* status_str = status(status_code);
   if (status_str == NULL) {
     return -1;
   }
