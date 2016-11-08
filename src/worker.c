@@ -11,9 +11,7 @@
 #include "response.h"
 #include "request.h"
 
-void handle(int fd) {
-  FILE* stream = fdopen(fd, "w+");
-
+void handle(http_sock_t* stream) {
   // Get default headers, these are always sent
   http_header_t* headers = default_headers();
 
@@ -86,7 +84,7 @@ void handle(int fd) {
 
       if (request->method != HTTP_HEAD) {
         // Cheat and use sendfile() to copy the file
-        sendfile(fd, file_fd, 0, (size_t) file_stat.st_size);
+        sendfile(stream, file_fd, 0, (size_t) file_stat.st_size);
       }
 
       // Close sent file

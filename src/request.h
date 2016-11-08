@@ -3,6 +3,7 @@
 
 #include "http.h"
 #include "http_header.h"
+#include "transport.h"
 
 /**
  * Retrieves a HTTP request from a
@@ -10,7 +11,7 @@
  * @param request   Request object to populate
  * @param client_fd Client stream file descriptor
  */
-int read_req(struct http_req* request, FILE* stream);
+int read_req(struct http_req* request, http_sock_t* stream);
 
 int read_head(FILE* stream, http_header_t** ptr);
 

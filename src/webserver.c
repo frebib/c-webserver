@@ -8,9 +8,11 @@
 #include <netdb.h>
 #include <signal.h>
 #include <pwd.h>
+#include <openssl/ssl.h>
 
 #include "net.h"
 #include "worker.h"
+#include "transport.h"
 
 #define PORT 8088
 #define USER "nobody"

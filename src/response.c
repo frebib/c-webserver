@@ -3,8 +3,9 @@
 #include <string.h>
 
 #include "response.h"
+#include "transport.h"
 
-int send_err_resp(FILE* stream, int response_code, http_header_t* headers) {
+int send_err_resp(http_sock_t* stream, int response_code, http_header_t* headers) {
   errno = 0;
   char* error_resp;
   if (error_page(&error_resp, response_code) < 0) {
@@ -27,7 +28,7 @@ int send_err_resp(FILE* stream, int response_code, http_header_t* headers) {
   return 0;
 }
 
-int send_status_line(FILE* stream, int response_code) {
+int send_status_line(http_sock_t* stream, int response_code) {
   // Send appropriate status line for response code
   size_t len = status_line_len(response_code);
   char buffer[len];
@@ -42,7 +43,7 @@ int send_status_line(FILE* stream, int response_code) {
   return 0;
 }
 
-int send_head(FILE* stream, http_header_t* header) {
+int send_head(http_sock_t* stream, http_header_t* header) {
   while (header != NULL) {
     fputs(header->name, stream);
     fputs(": ", stream);

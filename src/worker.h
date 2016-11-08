@@ -1,2 +1,4 @@
+#include "http.h"
+#include "transport.h"
 
-void handle(int fd);
+void handle(http_sock_t* stream);

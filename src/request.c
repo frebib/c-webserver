@@ -7,13 +7,14 @@
 #include <stdbool.h>
 
 #include "request.h"
+#include "transport.h"
 
 void req_timeout(int signal) {
   // TODO: Cleanup and reply on timeout
   fprintf(stderr, "Timeout!\n");
 }
 
-int read_req(struct http_req* request, FILE* stream) {
+int read_req(struct http_req* request, http_sock_t* stream) {
   // Handle timeout after 60 seconds
   signal(SIGALRM, req_timeout);
   alarm(60);
