@@ -19,6 +19,8 @@ The following libraries are required for this program to build and run:
     _Packaged as `file` or `file-dev` typically._
  * [pcre (Perl Compatible Regular Expressions)](http://www.pcre.org/) - Used for.. regex support.  
     _Packaged as `pcre`, `libpcre` or `pcre-dev` typically._
+ * [OpenSSL](https://github.com/openssl/openssl) - Used for HTTPS SSL/TLS connections.  
+    _Packaged as `openssl` or `openssl-dev` typically._
 
 All of the above should be available in your package manager as `<package>` or `<package>-dev`.
 
