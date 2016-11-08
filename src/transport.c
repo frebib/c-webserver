@@ -12,6 +12,7 @@
 #include <openssl/err.h>
 #include <zconf.h>
 #include <stdbool.h>
+#include <fcgimisc.h>
 
 #include "transport.h"
 
@@ -140,6 +141,37 @@ int sreadc(http_sock_t* stream) {
     default:
       return -1;
   }
+}
+
+#define BUF_SIZE 8192
+
+ssize_t ssendfile(http_sock_t* stream_out, int fd_in, size_t count) {
+  char buf[BUF_SIZE];
+  size_t toRead, totSent;
+  ssize_t numRead, numSent;
+
+  totSent = 0;
+
+  while (count > 0) {
+    toRead = min(BUF_SIZE, count);
+
+    numRead = read(fd_in, buf, toRead);
+    if (numRead == -1)
+      return -1;
+    if (numRead == 0)
+      break;                      /* EOF */
+
+    numSent = write_sock(stream_out, buf, (size_t) numRead);
+    if (numSent == -1)
+      return -1;
+    if (numSent == 0)               /* Should never happen */
+      fprintf(stderr, "sendfile: write() transferred 0 bytes\n");
+
+    count -= numSent;
+    totSent += numSent;
+  }
+
+  return totSent;
 }
 
 int sclose(http_sock_t* stream) {

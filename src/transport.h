@@ -40,6 +40,8 @@ int sreadc(http_sock_t* stream);
 
 int sclose(http_sock_t* stream);
 
+ssize_t ssendfile(http_sock_t* stream, int fd_out, size_t count);
+
 ssize_t read_line(char** buf, size_t* buf_len, http_sock_t* stream);
 
 ssize_t read_delim(char** lineptr, size_t* buf_len, int delim, http_sock_t* stream);

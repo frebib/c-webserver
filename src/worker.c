@@ -5,7 +5,6 @@
 #include <magic.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/sendfile.h>
 
 #include "worker.h"
 #include "response.h"
@@ -83,8 +82,7 @@ void handle(http_sock_t* stream) {
       free_head(headers);
 
       if (request->method != HTTP_HEAD) {
-        // Cheat and use sendfile() to copy the file
-        sendfile(stream, file_fd, 0, (size_t) file_stat.st_size);
+        ssendfile(stream, file_fd, (size_t) file_stat.st_size);
       }
 
       // Close sent file
