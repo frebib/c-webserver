@@ -10,9 +10,9 @@
  * @param request   Request object to populate
  * @param client_fd Client stream file descriptor
  */
-void read_req(struct http_req* request, FILE* stream);
+int read_req(struct http_req* request, FILE* stream);
 
-http_header_t* read_head(FILE* stream);
+int read_head(FILE* stream, http_header_t** ptr);
 
 void free_req(struct http_req* request);
 

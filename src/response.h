@@ -6,6 +6,8 @@
 #include "http.h"
 #include "http_header.h"
 
+int send_err_resp(FILE *stream, int response_code, http_header_t *headers);
+
 int send_status_line(FILE* stream, int response_code);
 
 int send_head(FILE* stream, http_header_t* header);

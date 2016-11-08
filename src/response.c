@@ -2,6 +2,22 @@
 
 #include "response.h"
 
+int send_err_resp(FILE* stream, int response_code, http_header_t* headers) {
+  send_status_line(stream, response_code);
+
+  // TODO: Send default 'Error page'
+
+  // Construct Content-Length header
+  http_header_t* cont_len = cont_len_head(0);
+  cont_len->next = headers;
+  headers = cont_len;
+
+  // Send headers
+  send_head(stream, headers);
+
+  return 0;
+}
+
 int send_status_line(FILE* stream, int response_code) {
   // Send appropriate status line for response code
   size_t len = status_line_len(response_code);

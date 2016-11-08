@@ -14,18 +14,28 @@
 void handle(int fd) {
   FILE* stream = fdopen(fd, "w+");
 
+  // Get default headers, these are always sent
+  http_header_t* headers = default_headers();
+
   // Parse client request
   struct http_req* request = malloc(sizeof(struct http_req));
   memset(request, 0, sizeof(struct http_req));
-  read_req(request, stream);
+  int error = read_req(request, stream);
+  // read_req may throw an HTTP code as an error
+  if (error != 0) {
+    if (error < 100) {
+      error = HTTP_BAD_REQUEST;
+    }
+
+    send_err_resp(stream, error, headers);
+    free_head(headers);
+    return;
+  }
 
   char* filepath = request->path;
   if (*filepath == '/') {
     filepath += 1;
   }
-
-  // Get default headers, these are always sent
-  http_header_t* headers = default_headers();
 
   if (access(filepath, F_OK) == 0) {
     // file exists
@@ -84,31 +94,12 @@ void handle(int fd) {
 
     } else {
       // file exists but is not readable
-      send_status_line(stream, HTTP_FORBIDDEN);
-
-      // Construct Content-Length header
-      http_header_t* cont_len = cont_len_head(0);
-      cont_len->next = headers;
-      headers = cont_len;
-
-      // Send headers
-      send_head(stream, headers);
+      send_err_resp(stream, HTTP_FORBIDDEN, headers);
       free_head(headers);
-
-      // TODO: Send default 'Error page'
     }
   } else {
     // file doesn't exist
-    send_status_line(stream, HTTP_NOT_FOUND);
-
-    // Construct Content-Length header
-    http_header_t* cont_len = cont_len_head(0);
-    cont_len->next = headers;
-    headers = cont_len;
-
-
-    // Send headers
-    send_head(stream, headers);
+    send_err_resp(stream, HTTP_NOT_FOUND, headers);
     free_head(headers);
 
     // TODO: Send default 'Error page'

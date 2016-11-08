@@ -13,7 +13,7 @@ void req_timeout(int signal) {
   fprintf(stderr, "Timeout!\n");
 }
 
-void read_req(struct http_req* request, FILE* stream) {
+int read_req(struct http_req* request, FILE* stream) {
   // Handle timeout after 60 seconds
   signal(SIGALRM, req_timeout);
   alarm(60);
@@ -28,10 +28,9 @@ void read_req(struct http_req* request, FILE* stream) {
 
   // Ensure the method is a valid one
   if ((request->method = request_type(buf)) == -1) {
-    // TODO: Send HTTP_NOT_IMPLEMENTED
     fprintf(stderr, "Invalid method: %s\n", buf);
     free(buf);
-    return;
+    return HTTP_NOT_IMPLEMENTED;
   }
 
   // Cleanup
@@ -55,16 +54,18 @@ void read_req(struct http_req* request, FILE* stream) {
     switch (ret) {
       case PCRE_ERROR_NOMATCH:
         // TODO: Send Invalid HTTP Version
-        return;
+        return HTTP_BAD_REQUEST;
       default:
         // TODO: Send HTTP_INTERN_SRV_ERR
-        return;
+        return HTTP_INTERN_SRV_ERR;
     }
   }
   free(buf);
 
   // Read headers from request
-  request->headers = read_head(stream);
+  if (read_head(stream, &request->headers) != 0) {
+    return HTTP_BAD_REQUEST;
+  }
 
   // Read body if Content-Length header is present
   http_header_t* len_head = find_header(request->headers, "content-length");
@@ -79,9 +80,11 @@ void read_req(struct http_req* request, FILE* stream) {
 
   // Prevent timeout, we're done now.
   alarm(0);
+
+  return 0;
 }
 
-http_header_t* read_head(FILE* stream) {
+int read_head(FILE* stream, http_header_t** ptr) {
   http_header_t* head = NULL, *curr = NULL;
 
   while (true) {
@@ -96,7 +99,8 @@ http_header_t* read_head(FILE* stream) {
     // Return if hit an empty line
     if (*line == '\0') {
       free(line);
-      return head;
+      *ptr = head;
+      return 0;
     }
 
     char* colon = strchr(line, ':');
@@ -108,7 +112,7 @@ http_header_t* read_head(FILE* stream) {
     if (name == NULL) {
       free(line);
       free_head(head);
-      return NULL;
+      return -1;
     }
     strncpy(name, line, len);
 
@@ -122,7 +126,7 @@ http_header_t* read_head(FILE* stream) {
     if (value == NULL) {
       free(line);
       free_head(head);
-      return NULL;
+      return -1;
     }
     strncpy(value, val_tmp, len);
 
