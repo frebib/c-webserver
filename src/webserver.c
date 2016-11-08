@@ -35,7 +35,7 @@ int serve(int sock) {
         handle(client_fd);
 
         // Terminate child process
-        exit(0);
+        return EXIT_SUCCESS;
 
       } else {
         // Parent server process
