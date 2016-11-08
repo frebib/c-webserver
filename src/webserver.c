@@ -120,6 +120,8 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   } else if (pid == 0) {
     // Child Process
+
+    // A strong independent process who don't need no parent
     setsid();
 
     // Don't wait for the child to terminate
