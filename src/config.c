@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <jansson.h>
 #include <string.h>
+#include <libgen.h>
 
 #include "config.h"
 
@@ -17,8 +18,14 @@ int parse_argv(cmd_flags_t* config, int argc, char** argv) {
   }
 
   int c;
-  while ((c = getopt(argc, argv, "dc:")) != -1) {
+  while ((c = getopt(argc, argv, "hdc:")) != -1) {
     switch (c) {
+      case 'h':
+        printf("Usage: %s -c <config file> [-d] [-h]\n\nOptions:\n", basename(*argv));
+        printf("    -h      \tShow this help message, then exit\n");
+        printf("    -d      \tRun the server in daemon mode\n");
+        printf("    -c file \tSpecify a server config file\n");
+        exit(0);
       case 'd':
         config->daemon = true;
         break;
