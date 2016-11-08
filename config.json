@@ -1,0 +1,15 @@
+{
+  "user": "http",
+  "group": "http",
+  "daemon": true,
+  "servers": [
+    {
+      "host": [ "localhost", "example.com" ],
+      "port": 8088,
+      "use_ssl": true,
+      "webroot": "./",
+      "ssl_key": "key.pem",
+      "ssl_cert": "cert.pem"
+    }
+  ]
+}

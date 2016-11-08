@@ -1,6 +1,6 @@
 CC	 = gcc
 CFLAGS = -g -Wall -Werror -std=c11 -D_GNU_SOURCE
-LIBS   = -lpcre -lmagic -lssl -lcrypto
+LIBS   = -lpcre -lmagic -lssl -lcrypto -ljansson
 
 SRCDIR = src
 OBJDIR = obj

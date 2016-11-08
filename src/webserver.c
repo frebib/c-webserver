@@ -14,23 +14,18 @@
 #include "worker.h"
 #include "config.h"
 
-#define PORT 8088
-#define USER "http"
-#define GROUP "http"
-
-#define cert_path "test/cert.pem"
-#define key_path  "test/key.pem"
-
-int serve(int sock, int sock_type) {
+int serve(int sock, http_server_t* config) {
   while (true) {
     struct sockaddr_storage cl_addr;
     socklen_t cl_addr_size = sizeof cl_addr;
     int client_fd;
 
+    int sock_type = config->use_ssl ? HTTP_SOCK_TLS : HTTP_SOCK_RAW;
+
     SSL_CTX* ctx;
     if (sock_type == HTTP_SOCK_TLS) {
       ssl_init();
-      ctx = ssl_create_ctx(cert_path, key_path);
+      ctx = ssl_create_ctx(config->ssl_cert, config->ssl_key);
     }
 
     // Accept incoming client connections
@@ -93,9 +88,17 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
 
+  if (flags.conf_file == NULL) {
+    printf("No config file specified. Specify one with -c <file>\n");
+    return EXIT_FAILURE;
+  }
+
+  http_config_t* config = load_config(flags.conf_file);
+  // TODO: Free config at some point
+
   // Open a socket and bind to it (for your life)
   int sock;
-  if ((sock = bindSocket(PORT)) == -1) {
+  if ((sock = bindSocket(config->servers->port)) == -1) {
     return EXIT_FAILURE;
   }
   // Listen for incoming connections
@@ -106,16 +109,16 @@ int main(int argc, char* argv[]) {
 
   // Retrieve user info
   errno = 0;
-  struct passwd* user = getpwnam(USER);
+  struct passwd* user = getpwnam(config->user);
   if (user == NULL) {
-    fprintf(stderr, "Failed to get user information for '%s':\n%s\n", USER, strerror(errno));
+    fprintf(stderr, "Failed to get user information for '%s':\n%s\n", config->user, strerror(errno));
     return EXIT_FAILURE;
   }
   // Give up higher privilege
   int ret_uid = setuid(user->pw_uid);
   if (ret_uid != 0)
     fprintf(stderr, "Failed to setuid(%d): %s\n", user->pw_uid, strerror(errno));
-  struct group* grp = getgrnam(GROUP);
+  struct group* grp = getgrnam(config->group);
   int ret_gid = setgid(grp->gr_gid);
   if (ret_gid != 0)
     fprintf(stderr, "Failed to setgid(%d): %s\n", grp->gr_gid, strerror(errno));
@@ -125,14 +128,15 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "WARNING: Running as %s:%s\n", passwd->pw_name, getgrgid(passwd->pw_gid)->gr_name);
   }
 
-  printf("Server listening on port %d\n", PORT);
+  printf("Server listening on port %d\n", config->servers->port);
 
-  if (flags.daemon) {
+  bool daemon = flags.daemon;
+  if (daemon) {
     printf("Running in daemon mode. The process will now slide into the shadows\n");
   }
 
   // Take 'daemon' flag from commandline arguments
-  int pid = flags.daemon ? fork() : 0;
+  int pid = daemon ? fork() : 0;
   if (pid == -1) {
     fprintf(stderr, "Failed to fork() creating daemon: %s\n", strerror(errno));
     return EXIT_FAILURE;
@@ -150,7 +154,7 @@ int main(int argc, char* argv[]) {
     };
     sigaction(SIGCHLD, &sigchld_action, NULL);
 
-    return serve(sock, HTTP_SOCK_TLS);
+    return serve(sock, config->servers);
 
   } else {
     // Parent process
