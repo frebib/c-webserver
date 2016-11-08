@@ -78,8 +78,10 @@ void handle(int fd) {
       send_head(stream, headers);
       free_head(headers);
 
-      // Cheat and use sendfile() to copy the file
-      sendfile(fd, file_fd, 0, (size_t) file_stat.st_size);
+      if (request->method != HTTP_HEAD) {
+        // Cheat and use sendfile() to copy the file
+        sendfile(fd, file_fd, 0, (size_t) file_stat.st_size);
+      }
 
       // Close sent file
       close(file_fd);
