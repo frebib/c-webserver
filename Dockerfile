@@ -7,6 +7,12 @@ RUN apk add --no-cache git make gcc libc-dev pcre-dev file-dev openssl-dev && \
     make all && \
     apk del --no-cache git make gcc
 
-WORKDIR /webserver
+RUN mkdir -p /srv/http /etc/webserver && \
+    adduser -h /srv/http -u 105 -s /bin/false -D http
 
-CMD ["bin/webserver"]
+USER http
+WORKDIR /srv/http
+
+VOLUME /srv/http
+
+CMD ["/webserver/bin/webserver"]

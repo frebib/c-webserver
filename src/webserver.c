@@ -14,8 +14,8 @@
 #include "worker.h"
 
 #define PORT 8088
-#define USER "nobody"
-#define GROUP "nobody"
+#define USER "http"
+#define GROUP "http"
 
 #define cert_path "test/cert.pem"
 #define key_path  "test/key.pem"
