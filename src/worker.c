@@ -36,7 +36,7 @@ void handle(int fd) {
       // Use libmagic (so amazing) to determine file mimetype
       magic_t magic_cookie = magic_open(MAGIC_MIME);
       if (magic_cookie == NULL) {
-        fprintf(stderr, "Error initialing magic cookie for libmagic mimetype lookup\n");
+        fprintf(stderr, "Error initialing magic cookie for libmagic MIME type lookup\n");
       } else {
         // Attempt to load the magic database
         if (magic_load(magic_cookie, NULL) != 0) {
