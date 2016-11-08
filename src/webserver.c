@@ -6,7 +6,6 @@
 #include <errno.h>
 #include <string.h>
 #include <netdb.h>
-#include <bits/signum.h>
 #include <signal.h>
 
 #include "net.h"
