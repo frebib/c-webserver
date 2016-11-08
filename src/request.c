@@ -104,8 +104,13 @@ int read_head(FILE* stream, http_header_t** ptr) {
     }
 
     char* colon = strchr(line, ':');
-    colon[0] = '\0';
-    
+    if (colon != NULL) {
+      colon[0] = '\0';
+    } else {
+      // Header line contains no colon
+      return HTTP_BAD_REQUEST;
+    }
+
     // malloc() a buffer for header name
     size_t len = strlen(line) + 1;
     char* name = malloc(len);
