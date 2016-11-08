@@ -7,11 +7,13 @@
 #include <string.h>
 #include <netdb.h>
 #include <signal.h>
+#include <pwd.h>
 
 #include "net.h"
 #include "worker.h"
 
-int PORT = 8088;
+#define PORT 8088
+#define USER "nobody"
 
 int serve(int sock) {
   while (true) {
@@ -70,6 +72,22 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "Failed to listen on socket: %s\n", strerror(errno));
     return EXIT_FAILURE;
   }
+
+  // Retrieve user info
+  errno = 0;
+  struct passwd* user = getpwnam(USER);
+  if (user == NULL) {
+    fprintf(stderr, "Failed to get user information for '%s':\n%s\n", USER, strerror(errno));
+    return EXIT_FAILURE;
+  }
+  // Give up higher privilege
+  int ret = setuid(user->pw_uid);
+  if (ret != 0) {
+    fprintf(stderr, "Failed to setuid(%d): %s\n", user->pw_uid, strerror(errno));
+    fprintf(stderr, "WARNING: Running as user '%s'\n", getpwuid(getuid())->pw_name);
+    // return EXIT_FAILURE;
+  }
+
   printf("Server listening on port %d\n", PORT);
 
   int pid = daemon ? fork() : 0;
