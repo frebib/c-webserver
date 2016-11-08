@@ -37,6 +37,15 @@ http_header_t* default_headers() {
   return headers;
 }
 
+http_header_t* cont_len_head(long len) {
+  http_header_t* cont_len = malloc(sizeof(http_header_t));
+  cont_len->name = strdup("Content-Length");
+  cont_len->value = malloc(20);
+  snprintf(cont_len->value, 20, "%li", len);
+
+  return cont_len;
+}
+
 int date_head(http_header_t* header) {
   if (header == NULL)
     return -1;

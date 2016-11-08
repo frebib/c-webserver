@@ -66,11 +66,7 @@ void handle(int fd) {
       fstat(file_fd, &file_stat);
 
       // Construct Content-Length header
-      http_header_t* cont_len = malloc(sizeof(http_header_t));
-      cont_len->name = strdup("Content-Length");
-      cont_len->value = malloc(20);
-      snprintf(cont_len->value, 20, "%li", file_stat.st_size);
-
+      http_header_t* cont_len = cont_len_head(file_stat.st_size);
       cont_len->next = headers;
       headers = cont_len;
 
@@ -90,6 +86,11 @@ void handle(int fd) {
       // file exists but is not readable
       send_status_line(stream, HTTP_FORBIDDEN);
 
+      Construct Content-Length header
+      http_header_t* cont_len = cont_len_head(0);
+      cont_len->next = headers;
+      headers = cont_len;
+
       // Send headers
       send_head(stream, headers);
       free_head(headers);
@@ -99,6 +100,12 @@ void handle(int fd) {
   } else {
     // file doesn't exist
     send_status_line(stream, HTTP_NOT_FOUND);
+
+    // Construct Content-Length header
+    http_header_t* cont_len = cont_len_head(0);
+    cont_len->next = headers;
+    headers = cont_len;
+
 
     // Send headers
     send_head(stream, headers);
