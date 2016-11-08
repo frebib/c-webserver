@@ -9,7 +9,7 @@ It can handle many concurrent connections and implements a basic subset of the [
 * [x] File MIME type detection via [libmagic](https://github.com/file/file)
 * [ ] Index pages
 * [x] Default error pages
-* [ ] SSL/TLS support
+* [x] SSL/TLS support
 * [ ] Configurable servers, SSL etc.
 
 ### Dependencies
