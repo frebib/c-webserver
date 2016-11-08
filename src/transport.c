@@ -1,10 +1,16 @@
+//
+// Created by frebib on 08/11/16.
+//
+
 #include <sys/socket.h>
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <netdb.h>
 
-#include "net.h"
+#include <openssl/ssl.h>
+
+#include "transport.h"
 
 int bindSocket(int port) {
   // Format the port as a string
@@ -12,7 +18,7 @@ int bindSocket(int port) {
   sprintf(port_chr, "%d", port);
 
   int sock, yes = 1;
-  struct addrinfo hints, *info;
+  struct addrinfo hints, * info;
   memset(&hints, 0, sizeof hints);
   hints.ai_family = AF_UNSPEC;     // use IPv4 or IPv6
   hints.ai_socktype = SOCK_STREAM;
