@@ -24,4 +24,23 @@ typedef struct http_sock {
  * @return file descriptor of socket or -1 on error
  */
 int bindSocket(int port);
+
+void ssl_init();
+
+SSL_CTX* ssl_create_ctx(const char* cert_path, const char* key_path);
+
+ssize_t read_sock(http_sock_t* stream, void* buf, size_t count);
+
+int write_sock(http_sock_t* stream, void* buf, size_t count);
+
+int sputs(char* buffer, http_sock_t* stream);
+
+int sreadc(http_sock_t* stream);
+
+int sclose(http_sock_t* stream);
+
+ssize_t read_line(char** buf, size_t* buf_len, http_sock_t* stream);
+
+ssize_t read_delim(char** lineptr, size_t* buf_len, int delim, http_sock_t* stream);
+
 #endif

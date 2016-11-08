@@ -22,7 +22,7 @@ int read_req(struct http_req* request, http_sock_t* stream) {
   // Parse request method
   char* buf = NULL;
   size_t buf_size;
-  ssize_t read = getdelim(&buf, &buf_size, ' ', stream);
+  ssize_t read = read_delim(&buf, &buf_size, ' ', stream);
   // Remove trailing space
   if (buf[read - 1] == ' ')
     buf[read - 1] = 0;
@@ -44,7 +44,7 @@ int read_req(struct http_req* request, http_sock_t* stream) {
   buf_size = 0;
 
   // Get request path
-  read = getdelim(&buf, &buf_size, ' ', stream);
+  read = read_delim(&buf, &buf_size, ' ', stream);
   // Remove trailing space
   if (buf[read - 1] == ' ')
     buf[read - 1] = 0;
@@ -53,7 +53,7 @@ int read_req(struct http_req* request, http_sock_t* stream) {
   buf_size = 0;
 
   // Read HTTP Version
-  read = getdelim(&buf, &buf_size, '\n', stream);
+  read = read_delim(&buf, &buf_size, '\n', stream);
   int ret = parse_http_ver(buf, (size_t) read, request);
   free(buf);
   if (ret != 0) {
@@ -77,7 +77,7 @@ int read_req(struct http_req* request, http_sock_t* stream) {
   if (len_head != NULL) {
     size_t cont_len = strtoul(len_head->value, NULL, 10);
     char* body = malloc((size_t) cont_len);
-    fread(body, 1, cont_len, stream);
+    read_sock(stream, body, cont_len);
 
     request->body = body;
     request->body_len = cont_len;
@@ -89,13 +89,13 @@ int read_req(struct http_req* request, http_sock_t* stream) {
   return 0;
 }
 
-int read_head(FILE* stream, http_header_t** ptr) {
+int read_head(http_sock_t* stream, http_header_t** ptr) {
   http_header_t* head = NULL, *curr = NULL;
 
   while (true) {
     char* line = NULL;
     size_t line_size;
-    ssize_t read = getline(&line, &line_size, stream);
+    ssize_t read = read_line(&line, &line_size, stream);
     if (line[read - 2] == '\r')
       line[read - 2] = '\0';
     else if (line[read - 1] == '\n')

@@ -13,6 +13,6 @@ int send_status_line(http_sock_t* stream, int response_code);
 
 int send_head(http_sock_t* stream, http_header_t* header);
 
-int send_crlf(FILE* stream);
+int send_crlf(http_sock_t* stream);
 
 #endif

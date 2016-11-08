@@ -22,7 +22,7 @@ int send_err_resp(http_sock_t* stream, int response_code, http_header_t* headers
 
   // Send headers
   send_head(stream, headers);
-  fputs(error_resp, stream);
+  sputs(error_resp, stream);
   free(error_resp);
 
   return 0;
@@ -33,7 +33,7 @@ int send_status_line(http_sock_t* stream, int response_code) {
   size_t len = status_line_len(response_code);
   char buffer[len];
   status_line(response_code, buffer, len);
-  int ret = fputs(buffer, stream);
+  int ret  = write_sock(stream, buffer, sizeof buffer);
   if (ret < 0)
     return ret;
   ret = send_crlf(stream);
@@ -45,20 +45,18 @@ int send_status_line(http_sock_t* stream, int response_code) {
 
 int send_head(http_sock_t* stream, http_header_t* header) {
   while (header != NULL) {
-    fputs(header->name, stream);
-    fputs(": ", stream);
-    fputs(header->value, stream);
+    sputs(header->name, stream);
+    sputs(": ", stream);
+    sputs(header->value, stream);
     send_crlf(stream);
 
     header = header->next;
   }
   send_crlf(stream);
 
-  // Flush the stream to ensure headers get sent first
-  fflush(stream);
   return 0;
 }
 
-int send_crlf(FILE* stream) {
-  return fputs("\r\n", stream);
+int send_crlf(http_sock_t* stream) {
+  return write_sock(stream, "\r\n", 2);
 }

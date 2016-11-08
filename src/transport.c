@@ -9,6 +9,9 @@
 #include <netdb.h>
 
 #include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <zconf.h>
+#include <stdbool.h>
 
 #include "transport.h"
 
@@ -55,4 +58,118 @@ int bindSocket(int port) {
   freeaddrinfo(info);
 
   return sock;
+}
+
+void ssl_init() {
+  SSL_load_error_strings();
+  OpenSSL_add_ssl_algorithms();
+}
+
+SSL_CTX* ssl_create_ctx(const char* cert_path, const char* key_path) {
+  const SSL_METHOD* method;
+  SSL_CTX* ctx;
+
+  // Auto-negotiate SSL method
+  method = SSLv23_server_method();
+
+  ctx = SSL_CTX_new(method);
+  if (!ctx) {
+    fprintf(stderr, "Unable to create SSL context: ");
+    ERR_print_errors_fp(stderr);
+    return NULL;
+  }
+
+  SSL_CTX_set_ecdh_auto(ctx, 1);
+
+  // Load key and certificate files
+  if (SSL_CTX_use_certificate_file(ctx, cert_path, SSL_FILETYPE_PEM) < 0) {
+    ERR_print_errors_fp(stderr);
+    return NULL;
+  }
+  if (SSL_CTX_use_PrivateKey_file(ctx, key_path, SSL_FILETYPE_PEM) < 0) {
+    ERR_print_errors_fp(stderr);
+    return NULL;
+  }
+
+  return ctx;
+}
+
+ssize_t read_sock(http_sock_t* stream, void* buf, size_t count) {
+  switch (stream->http_sock_type) {
+    case HTTP_SOCK_RAW:
+      return read(stream->fd, buf, count);
+
+    case HTTP_SOCK_TLS:
+      return SSL_read(stream->ssl_conn, buf, (int) count);
+
+    default:
+      return -1;
+  }
+}
+
+int write_sock(http_sock_t* stream, void* buf, size_t count) {
+  switch (stream->http_sock_type) {
+    case HTTP_SOCK_RAW:
+      return (int) write(stream->fd, buf, count);
+
+    case HTTP_SOCK_TLS:
+      return SSL_write(stream->ssl_conn, buf, (int) count);
+
+    default:
+      return -1;
+  }
+}
+
+int sputs(char* buffer, http_sock_t* stream) {
+  return write_sock(stream, buffer, strlen(buffer));
+}
+
+int sreadc(http_sock_t* stream) {
+  char c;
+  ssize_t ret = read_sock(stream, &c, 1);
+  return (int) (ret >= 0 ? c : ret);
+}
+
+int sclose(http_sock_t* stream) {
+  switch (stream->http_sock_type) {
+    case HTTP_SOCK_TLS:
+      SSL_free(stream->ssl_conn);
+      break;
+  }
+  return close(stream->fd);
+}
+
+ssize_t read_line(char** buf, size_t* buf_len, http_sock_t* stream) {
+  return read_delim(buf, buf_len, '\n', stream);
+}
+
+#define BODY_CHUNK 32
+
+ssize_t read_delim(char** buf, size_t* buf_len, int delim, http_sock_t* stream) {
+  ssize_t buf_read = 0;
+
+  if (*buf == NULL) {
+    *buf_len = BODY_CHUNK;
+    *buf = malloc(*buf_len);
+  }
+
+  while (true) {
+    int c = sreadc(stream);
+
+    if (c == EOF || c == delim) {
+      (*buf)[buf_read++] = (char) c;
+      (*buf)[buf_read] = '\0';
+      return buf_read;
+    } else {
+      // If buffer is full
+      if (buf_read >= *buf_len - 1) {
+        // Double size of the buffer
+        *buf_len <<= 2;
+        // Reallocate it
+        *buf = realloc(*buf, *buf_len);
+      }
+
+      (*buf)[buf_read++] = (char) c;
+    }
+  }
 }

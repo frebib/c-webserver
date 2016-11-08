@@ -13,7 +13,7 @@
  */
 int read_req(struct http_req* request, http_sock_t* stream);
 
-int read_head(FILE* stream, http_header_t** ptr);
+int read_head(http_sock_t* stream, http_header_t** ptr);
 
 void free_req(struct http_req* request);
 

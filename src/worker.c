@@ -104,5 +104,5 @@ void handle(http_sock_t* stream) {
   }
 
   free_req(request);
-  fclose(stream);
+  sclose(stream);
 }

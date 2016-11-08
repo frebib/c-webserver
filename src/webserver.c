@@ -17,11 +17,20 @@
 #define PORT 8088
 #define USER "nobody"
 
-int serve(int sock) {
+#define cert_path "test/cert.pem"
+#define key_path  "test/key.pem"
+
+int serve(int sock, int sock_type) {
   while (true) {
     struct sockaddr_storage cl_addr;
     socklen_t cl_addr_size = sizeof cl_addr;
     int client_fd;
+
+    SSL_CTX* ctx;
+    if (sock_type == HTTP_SOCK_TLS) {
+      ssl_init();
+      ctx = ssl_create_ctx(cert_path, key_path);
+    }
 
     // Accept incoming client connections
     if ((client_fd = accept(sock, (struct sockaddr*) &cl_addr, &cl_addr_size)) != -1) {
@@ -36,7 +45,20 @@ int serve(int sock) {
         // Close server socket
         close(sock);
 
-        handle(client_fd);
+        http_sock_t connection = {
+            .http_sock_type = sock_type,
+            .fd = client_fd,
+        };
+
+        switch (sock_type) {
+          case HTTP_SOCK_TLS:
+            connection.ssl_conn = SSL_new(ctx);
+            SSL_set_fd(connection.ssl_conn, client_fd);
+            SSL_accept(connection.ssl_conn);
+            break;
+        }
+
+        handle(&connection);
 
         // Terminate child process
         return EXIT_SUCCESS;
@@ -108,7 +130,7 @@ int main(int argc, char* argv[]) {
     };
     sigaction(SIGCHLD, &sigchld_action, NULL);
 
-    return serve(sock);
+    return serve(sock, HTTP_SOCK_TLS);
 
   } else {
     // Parent process
