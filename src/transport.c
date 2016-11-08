@@ -12,7 +12,6 @@
 #include <openssl/err.h>
 #include <zconf.h>
 #include <stdbool.h>
-#include <fcgimisc.h>
 
 #include "transport.h"
 
@@ -144,6 +143,9 @@ int sreadc(http_sock_t* stream) {
 }
 
 #define BUF_SIZE 8192
+#ifndef min
+#define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
 
 ssize_t ssendfile(http_sock_t* stream_out, int fd_in, size_t count) {
   char buf[BUF_SIZE];
