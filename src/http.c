@@ -135,7 +135,7 @@ int error_page(char** buffer, int response_code) {
   char* template =
           "<head>\n\t<title>%d %s</title>\n</head>\n"
           "<body style=\"margin:1.4em;font-size:1.2em;text-align:center\">\n"
-          "\t<h1>%d: %s</h1>\n\t<hr />"
+          "\t<h1>%d: %s</h1>\n\t<hr />\n"
           "\t<span>" SERVER_NAME_VER "</span>\n"
           "</body>";
   // Subtract 8 for the %s and %d format identifiers
