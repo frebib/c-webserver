@@ -12,6 +12,7 @@
 #include <grp.h>
 
 #include "worker.h"
+#include "config.h"
 
 #define PORT 8088
 #define USER "http"
@@ -84,8 +85,13 @@ int serve(int sock, int sock_type) {
 
 int main(int argc, char* argv[]) {
 
-  // TODO: Take daemon flag as a command line argument
-  bool daemon = false;
+  cmd_flags_t flags;
+  default_args(&flags);
+
+  if (parse_argv(&flags, argc, argv) != 0) {
+    fprintf(stderr, "Error parsing command-line arguments\n");
+    return EXIT_FAILURE;
+  }
 
   // Open a socket and bind to it (for your life)
   int sock;
@@ -121,7 +127,12 @@ int main(int argc, char* argv[]) {
 
   printf("Server listening on port %d\n", PORT);
 
-  int pid = daemon ? fork() : 0;
+  if (flags.daemon) {
+    printf("Running in daemon mode. The process will now slide into the shadows\n");
+  }
+
+  // Take 'daemon' flag from commandline arguments
+  int pid = flags.daemon ? fork() : 0;
   if (pid == -1) {
     fprintf(stderr, "Failed to fork() creating daemon: %s\n", strerror(errno));
     return EXIT_FAILURE;
