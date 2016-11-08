@@ -3,10 +3,19 @@
 This small multi-client webserver is written as an assignment submission.
 It can handle many concurrent connections and implements a basic subset of the [HTTP/1.1 standard according to RFC 2616](https://www.ietf.org/rfc/rfc2616.txt)
 
+### Features (Roadmap)
+* [x] Basic HTTP GET/HEAD commands
+* [x] 200, 403 & 404 responses for files
+* [x] File MIME type detection via [libmagic](https://github.com/file/file)
+* [ ] Index pages
+* [ ] Default error pages
+* [ ] SSL/TLS support
+* [ ] Configurable servers, SSL etc.
+
 ### Dependencies
 The following libraries are required for this program to build and run:
 
- * [libmagic (file)](https://github.com/file/file) - Used for mimetype detection of files.  
+ * [libmagic (file)](https://github.com/file/file) - Used for MIME type detection of files.  
     _Packaged as `file` or `file-dev` typically._
  * [pcre (Perl Compatible Regular Expressions)](http://www.pcre.org/) - Used for.. regex support.  
     _Packaged as `pcre`, `libpcre` or `pcre-dev` typically._
