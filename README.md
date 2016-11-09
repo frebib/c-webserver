@@ -7,10 +7,10 @@ It can handle many concurrent connections and implements a basic subset of the [
 * [x] Basic HTTP GET/HEAD commands
 * [x] 200, 403 & 404 responses for files
 * [x] File MIME type detection via [libmagic](https://github.com/file/file)
-* [ ] Index pages
+* [x] SSL/TLS support via [OpenSSL](https://github.com/openssl/openssl)
+* [x] Configurable servers via config file
 * [x] Default error pages
-* [x] SSL/TLS support
-* [ ] Configurable servers, SSL etc.
+* [ ] Index pages
 
 ### Dependencies
 The following libraries are required for this program to build and run:
