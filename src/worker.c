@@ -15,8 +15,8 @@ void handle(http_sock_t* stream) {
   http_header_t* headers = default_headers();
 
   // Parse client request
-  struct http_req* request = malloc(sizeof(struct http_req));
-  memset(request, 0, sizeof(struct http_req));
+  struct http_req* request = calloc(1, sizeof(struct http_req));
+
   int error = read_req(request, stream);
   // read_req may throw an HTTP code as an error
   if (error != 0) {

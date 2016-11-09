@@ -8,8 +8,9 @@
 #include <netdb.h>
 #include <signal.h>
 #include <pwd.h>
-#include <openssl/ssl.h>
 #include <grp.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #include "worker.h"
 #include "config.h"
@@ -30,6 +31,8 @@ int serve(int sock, http_server_t* config) {
 
     // Accept incoming client connections
     if ((client_fd = accept(sock, (struct sockaddr*) &cl_addr, &cl_addr_size)) != -1) {
+
+      printf("Accepted client: %d\n", client_fd);
 
       int pid = fork();
       if (pid == -1) {
@@ -56,6 +59,18 @@ int serve(int sock, http_server_t* config) {
         }
 
         handle(&connection);
+
+        // Cleanup
+        fclose(connection.file);
+
+        switch (sock_type) {
+          case HTTP_SOCK_TLS:
+            SSL_CTX_free(ctx);
+            ERR_free_strings();
+            EVP_cleanup();
+            CRYPTO_cleanup_all_ex_data();
+            break;
+        }
 
         // Terminate child process
         return EXIT_SUCCESS;
@@ -154,7 +169,10 @@ int main(int argc, char* argv[]) {
     };
     sigaction(SIGCHLD, &sigchld_action, NULL);
 
-    return serve(sock, config->servers);
+    int ret = serve(sock, config->servers);
+    free_config(config);
+
+    return ret;
 
   } else {
     // Parent process

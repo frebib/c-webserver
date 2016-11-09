@@ -179,6 +179,7 @@ ssize_t ssendfile(http_sock_t* stream_out, int fd_in, size_t count) {
 int sclose(http_sock_t* stream) {
   switch (stream->http_sock_type) {
     case HTTP_SOCK_TLS:
+      SSL_shutdown(stream->ssl_conn);
       SSL_free(stream->ssl_conn);
       break;
   }

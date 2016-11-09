@@ -142,6 +142,7 @@ int error_page(char** buffer, int response_code) {
   size_t templ_len = strlen(template) - 8;
 
   const char* status_txt = status(response_code);
-  *buffer = malloc(templ_len + 6 + strlen(status_txt) * 2);
-  return sprintf(*buffer, template, response_code, status_txt, response_code, status_txt);
+  size_t size = templ_len + 6 + strlen(status_txt) * 2;
+  *buffer = malloc(size);
+  return snprintf(*buffer, size, template, response_code, status_txt, response_code, status_txt);
 }
