@@ -103,6 +103,5 @@ void free_config(http_config_t* config) {
 
   free(config->user);
   free(config->group);
-  free(config->servers);
   free(config);
 }
