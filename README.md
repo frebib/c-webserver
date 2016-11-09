@@ -16,7 +16,7 @@ It can handle many concurrent connections and implements a basic subset of the [
 Start by editing the configuration file, modifying servers as required.
 For SSL, ensure the certificate paths are correct. All paths are relative to the webserver binary.
 
-Ensure the config is readable from the working directory when the server starts. The certificates will be read upon the first connection to the server, so make sure to test it!
+Ensure the config is readable from the working directory when the server starts. The certificates will be read upon the first connection to the server, so make sure to test it! (Caused by [issue #4](https://github.com/frebib/c-webserver/issues/4))
 
 Specify the config on the command line with the `-c` flag: `webserver -d -c <config-file>` (Adding `-d` for optional daemon mode, if not specified in the config)
 
