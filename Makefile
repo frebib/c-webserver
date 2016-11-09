@@ -27,6 +27,6 @@ clean:
 	find . -name '*.o' -delete
 
 run:
-	$(BINDIR)/$(TARGET)
+	$(BINDIR)/$(TARGET) -c config.json -d
 
 .PHONY: all clean run

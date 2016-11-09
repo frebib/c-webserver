@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 
   printf("Server listening on port %d\n", config->servers->port);
 
-  bool daemon = flags.daemon;
+  bool daemon = config->daemon;
   if (daemon) {
     printf("Running in daemon mode. The process will now slide into the shadows\n");
   }
