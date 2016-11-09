@@ -19,7 +19,7 @@ int serve(int sock, http_server_t* config) {
 
   // Initialise SSL if server uses SSL
   int sock_type = config->use_ssl ? HTTP_SOCK_TLS : HTTP_SOCK_RAW;
-  SSL_CTX* ctx;
+  SSL_CTX* ctx = NULL;
   if (sock_type == HTTP_SOCK_TLS) {
     ssl_init();
     ctx = ssl_create_ctx(config->ssl_cert, config->ssl_key);
@@ -28,6 +28,7 @@ int serve(int sock, http_server_t* config) {
   while (true) {
     struct sockaddr_storage cl_addr;
     socklen_t cl_addr_size = sizeof cl_addr;
+    memset(&cl_addr, '\0', cl_addr_size);
     int client_fd;
 
     // Accept incoming client connections
@@ -40,40 +41,18 @@ int serve(int sock, http_server_t* config) {
         fprintf(stderr, "Failed to fork() on client connection: %s\n", strerror(errno));
         return EXIT_FAILURE;
 
-        // Child process
       } else if (pid == 0) {
+        // Child process
+
         // Close server socket
         close(sock);
 
-        http_sock_t connection = {
-            .http_sock_type = sock_type,
-            .fd             = client_fd,
-            .file           = fdopen(client_fd, "w+")
-        };
+        http_sock_t conn;
+        conn.http_sock_type = sock_type;
 
-        switch (sock_type) {
-          case HTTP_SOCK_TLS:
-            connection.ssl_conn = SSL_new(ctx);
-            SSL_set_fd(connection.ssl_conn, client_fd);
-            SSL_accept(connection.ssl_conn);
-            break;
-        }
-
-        handle(&connection);
-
-        // Cleanup
-        fclose(connection.file);
-
-        switch (sock_type) {
-          case HTTP_SOCK_TLS:
-            SSL_CTX_free(ctx);
-            SSL_COMP_free_compression_methods();
-            ERR_free_strings();
-            ERR_remove_thread_state(NULL);
-            EVP_cleanup();
-            CRYPTO_cleanup_all_ex_data();
-            break;
-        }
+        init_handle(&conn, client_fd, ctx);
+        handle(&conn);
+        cleanup_handle(&conn);
 
         // Terminate child process
         return EXIT_SUCCESS;
@@ -181,6 +160,7 @@ int main(int argc, char* argv[]) {
 
   } else {
     // Parent process
+    free_config(config);
 
     // Daemon complete, exit now!
     return EXIT_SUCCESS;

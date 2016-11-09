@@ -5,10 +5,41 @@
 #include <magic.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <openssl/err.h>
 
 #include "worker.h"
 #include "response.h"
 #include "request.h"
+
+void init_handle(http_sock_t* stream, int fd, SSL_CTX* ctx) {
+  stream->fd = fd;
+  stream->file = fdopen(fd, "w+");
+
+  switch (stream->http_sock_type) {
+    case HTTP_SOCK_TLS:
+      stream->ssl_conn = SSL_new(ctx);
+      SSL_set_fd(stream->ssl_conn, fd);
+      SSL_accept(stream->ssl_conn);
+      break;
+  }
+}
+
+void cleanup_handle(http_sock_t* stream) {
+
+  // Cleanup
+  fclose(stream->file);
+
+  switch (stream->http_sock_type) {
+    case HTTP_SOCK_TLS:
+      SSL_CTX_free(stream->ssl_conn->ctx);
+      SSL_COMP_free_compression_methods();
+      ERR_free_strings();
+      ERR_remove_thread_state(NULL);
+      EVP_cleanup();
+      CRYPTO_cleanup_all_ex_data();
+      break;
+  }
+}
 
 void handle(http_sock_t* stream) {
   // Get default headers, these are always sent
