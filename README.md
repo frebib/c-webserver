@@ -12,6 +12,14 @@ It can handle many concurrent connections and implements a basic subset of the [
 * [x] Default error pages
 * [ ] Index pages
 
+### How to run the webserver
+Start by editing the configuration file, modifying servers as required.
+For SSL, ensure the certificate paths are correct. All paths are relative to the webserver binary.
+
+Ensure the config is readable from the working directory when the server starts. The certificates will be read upon the first connection to the server, so make sure to test it!
+
+Specify the config on the command line with the `-c` flag: `webserver -d -c <config-file>` (Adding `-d` for optional daemon mode, if not specified in the config)
+
 ### Dependencies
 The following libraries are required for this program to build and run:
 
