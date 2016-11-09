@@ -16,18 +16,19 @@
 #include "config.h"
 
 int serve(int sock, http_server_t* config) {
+
+  // Initialise SSL if server uses SSL
+  int sock_type = config->use_ssl ? HTTP_SOCK_TLS : HTTP_SOCK_RAW;
+  SSL_CTX* ctx;
+  if (sock_type == HTTP_SOCK_TLS) {
+    ssl_init();
+    ctx = ssl_create_ctx(config->ssl_cert, config->ssl_key);
+  }
+
   while (true) {
     struct sockaddr_storage cl_addr;
     socklen_t cl_addr_size = sizeof cl_addr;
     int client_fd;
-
-    int sock_type = config->use_ssl ? HTTP_SOCK_TLS : HTTP_SOCK_RAW;
-
-    SSL_CTX* ctx;
-    if (sock_type == HTTP_SOCK_TLS) {
-      ssl_init();
-      ctx = ssl_create_ctx(config->ssl_cert, config->ssl_key);
-    }
 
     // Accept incoming client connections
     if ((client_fd = accept(sock, (struct sockaddr*) &cl_addr, &cl_addr_size)) != -1) {
@@ -66,7 +67,9 @@ int serve(int sock, http_server_t* config) {
         switch (sock_type) {
           case HTTP_SOCK_TLS:
             SSL_CTX_free(ctx);
+            SSL_COMP_free_compression_methods();
             ERR_free_strings();
+            ERR_remove_thread_state(NULL);
             EVP_cleanup();
             CRYPTO_cleanup_all_ex_data();
             break;
@@ -109,16 +112,17 @@ int main(int argc, char* argv[]) {
   }
 
   http_config_t* config = load_config(flags.conf_file);
-  // TODO: Free config at some point
 
   // Open a socket and bind to it (for your life)
   int sock;
   if ((sock = bindSocket(config->servers->port)) == -1) {
+    free_config(config);
     return EXIT_FAILURE;
   }
   // Listen for incoming connections
   if (listen(sock, 5) == -1) {
     fprintf(stderr, "Failed to listen on socket: %s\n", strerror(errno));
+    free_config(config);
     return EXIT_FAILURE;
   }
 
@@ -127,6 +131,7 @@ int main(int argc, char* argv[]) {
   struct passwd* user = getpwnam(config->user);
   if (user == NULL) {
     fprintf(stderr, "Failed to get user information for '%s':\n%s\n", config->user, strerror(errno));
+    free_config(config);
     return EXIT_FAILURE;
   }
   // Give up higher privilege
