@@ -31,10 +31,10 @@ void cleanup_handle(http_sock_t* stream) {
 
   switch (stream->http_sock_type) {
     case HTTP_SOCK_TLS:
-      SSL_CTX_free(stream->ssl_conn->ctx);
+      SSL_CTX_free(SSL_get_SSL_CTX(stream->ssl_conn));
       SSL_COMP_free_compression_methods();
       ERR_free_strings();
-      ERR_remove_thread_state(NULL);
+      //ERR_remove_thread_state(NULL);
       EVP_cleanup();
       CRYPTO_cleanup_all_ex_data();
       break;
